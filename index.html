@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anteproyecto 3 pisos - La Ceja</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1eb;
+      --panel: #ffffff;
+      --ink: #24211d;
+      --muted: #6b6258;
+      --line: #ddd5c9;
+      --accent: #c77f2a;
+      --accent-dark: #86521b;
+      --blue: #2f6f8f;
+      --green: #607b4d;
+      --yellow: #d8a52d;
+      --gray: #8e8b84;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      padding: 24px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      overflow-y: auto;
+    }
+
+    main {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1.05;
+      font-weight: 780;
+    }
+
+    h2 {
+      margin: 26px 0 10px;
+      font-size: 15px;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f7ead8;
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fffaf4;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .controls {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .control-row input { accent-color: var(--accent); }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--panel);
+      color: var(--ink);
+      font-weight: 720;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    ul {
+      padding-left: 18px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      background: #fffaf4;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
+      margin-top: 14px;
+    }
+
+    .legend {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      flex: 0 0 auto;
+    }
+
+    #scene {
+      width: 100%;
+      height: 100vh;
+      display: block;
+      background: linear-gradient(180deg, #e8edf0 0%, #f4f1eb 58%, #e7ded1 100%);
+    }
+
+    .hud {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      max-width: 360px;
+      border-radius: 8px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      backdrop-filter: blur(10px);
+    }
+
+    .orientation {
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      color: var(--muted);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 1fr; }
+      aside {
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      main { min-height: 68vh; }
+      #scene { height: 68vh; }
+      .hud { position: static; margin: 12px; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="tag">Modelo conceptual 3D - opcion 3 pisos</div>
+      <h1>Edificio compacto para renta en La Ceja</h1>
+      <p>
+        Anteproyecto volumetrico basado en el correo y en el lote de 393,3 m2:
+        acceso frontal angosto, cuerpo posterior amplio, apartamentos basicos,
+        sin ascensor y con parqueaderos para motos.
+      </p>
+
+      <div class="metric-grid">
+        <div class="metric">
+          <strong>45 m2</strong>
+          <span>tamano recomendado por apartamento</span>
+        </div>
+        <div class="metric">
+          <strong>12</strong>
+          <span>unidades preliminares, 4 por piso</span>
+        </div>
+        <div class="metric">
+          <strong>3</strong>
+          <span>pisos habitables + terraza tecnica</span>
+        </div>
+        <div class="metric">
+          <strong>540 m2</strong>
+          <span>area rentable neta aproximada</span>
+        </div>
+      </div>
+
+      <h2>Criterio de diseno</h2>
+      <p>
+        Recomiendo 45 m2 porque equilibra rentabilidad y habitabilidad. Con
+        40 m2 caben mas unidades, pero se tensionan ventilacion, circulacion y
+        calidad espacial. Con 50 m2 baja la densidad y se pierde rendimiento de
+        renta en un lote que ya exige areas comunes, patios y evacuacion.
+      </p>
+      <ul>
+        <li>4 apartamentos por piso, cada uno cercano a 45 m2.</li>
+        <li>Nucleo de escaleras en el encuentro entre corredor y bloque posterior.</li>
+        <li>Corredor frontal para acceso peatonal, motos, redes y evacuacion.</li>
+        <li>Patios y vacios de luz para no depender solo de fachadas laterales.</li>
+      </ul>
+
+      <h2>Capas</h2>
+      <div class="controls">
+        <label class="control-row">Mostrar lote completo <input id="toggleLot" type="checkbox" checked></label>
+        <label class="control-row">Mostrar apartamentos <input id="toggleApartments" type="checkbox" checked></label>
+        <label class="control-row">Mostrar circulacion y escaleras <input id="toggleCore" type="checkbox" checked></label>
+        <label class="control-row">Mostrar estructura <input id="toggleStructure" type="checkbox" checked></label>
+        <label class="control-row">Mostrar motos y acceso <input id="toggleAccess" type="checkbox" checked></label>
+      </div>
+
+      <h2>Vistas rapidas</h2>
+      <div class="button-grid">
+        <button id="viewIso">Isometrica</button>
+        <button id="viewTop">Planta</button>
+        <button id="viewStreet">Desde calle</button>
+        <button id="viewRear">Bloque posterior</button>
+      </div>
+
+      <h2>Leyenda</h2>
+      <div class="legend">
+        <div class="legend-item"><span class="swatch" style="background:#d9b15d"></span>Lote / huella del predio</div>
+        <div class="legend-item"><span class="swatch" style="background:#6e9db2"></span>Apartamentos tipo de 45 m2</div>
+        <div class="legend-item"><span class="swatch" style="background:#b66b39"></span>Escaleras y corredor comun</div>
+        <div class="legend-item"><span class="swatch" style="background:#7c8477"></span>Patios, vacios y terraza tecnica</div>
+        <div class="legend-item"><span class="swatch" style="background:#4f4f4a"></span>Columnas y estructura conceptual</div>
+      </div>
+
+      <div class="note">
+        Este archivo es una herramienta de visualizacion preliminar. Las areas,
+        alturas, patios, evacuacion, sismo-resistencia, parqueaderos y licencias
+        deben verificarse con arquitecto/ingeniero matriculado, estudio de
+        cabida, POT/PBOT de La Ceja, NSR-10 y curaduria/planeacion municipal.
+      </div>
+    </aside>
+
+    <main>
+      <canvas id="scene" aria-label="Modelo 3D del anteproyecto"></canvas>
+      <div class="orientation">
+        <div class="pill">Calle / acceso: frente angosto</div>
+        <div class="pill">Bloque principal: parte posterior amplia</div>
+      </div>
+      <div class="hud">
+        Arrastra para orbitar, rueda para acercar y clic derecho para desplazar.
+        El modelo muestra una solucion inicial de 3 pisos: 4 apartamentos por
+        nivel, corredor central, patios de luz y acceso/motos por el tramo angosto.
+      </div>
+    </main>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js",
+        "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const canvas = document.querySelector("#scene");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf4f1eb);
+    scene.fog = new THREE.Fog(0xf4f1eb, 60, 110);
+
+    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 220);
+    camera.position.set(27, 23, 45);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(-7.5, 4.4, 21);
+    controls.enableDamping = true;
+    controls.maxPolarAngle = Math.PI * 0.48;
+    controls.minDistance = 18;
+    controls.maxDistance = 86;
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    const groups = {
+      lot: new THREE.Group(),
+      apartments: new THREE.Group(),
+      core: new THREE.Group(),
+      structure: new THREE.Group(),
+      access: new THREE.Group(),
+      labels: new THREE.Group()
+    };
+    Object.values(groups).forEach(group => root.add(group));
+
+    const mats = {
+      lot: new THREE.MeshStandardMaterial({ color: 0xd9b15d, roughness: 0.9, metalness: 0.02, transparent: true, opacity: 0.82 }),
+      road: new THREE.MeshStandardMaterial({ color: 0xbdb8ae, roughness: 0.85 }),
+      slab: new THREE.MeshStandardMaterial({ color: 0xe2ded5, roughness: 0.86 }),
+      aptA: new THREE.MeshStandardMaterial({ color: 0x6e9db2, roughness: 0.65, transparent: true, opacity: 0.9 }),
+      aptB: new THREE.MeshStandardMaterial({ color: 0x7aa889, roughness: 0.65, transparent: true, opacity: 0.9 }),
+      aptC: new THREE.MeshStandardMaterial({ color: 0xd6a657, roughness: 0.7, transparent: true, opacity: 0.9 }),
+      aptD: new THREE.MeshStandardMaterial({ color: 0xc88973, roughness: 0.7, transparent: true, opacity: 0.9 }),
+      core: new THREE.MeshStandardMaterial({ color: 0xb66b39, roughness: 0.72 }),
+      patio: new THREE.MeshStandardMaterial({ color: 0x7c8477, roughness: 0.8, transparent: true, opacity: 0.55 }),
+      glass: new THREE.MeshPhysicalMaterial({ color: 0xaed4df, roughness: 0.18, metalness: 0.02, transmission: 0.12, transparent: true, opacity: 0.54 }),
+      brick: new THREE.MeshStandardMaterial({ color: 0x9d573a, roughness: 0.9, transparent: true, opacity: 0.5 }),
+      column: new THREE.MeshStandardMaterial({ color: 0x4f4f4a, roughness: 0.6 }),
+      gate: new THREE.MeshStandardMaterial({ color: 0x2d2b28, roughness: 0.55, metalness: 0.25 }),
+      roof: new THREE.MeshStandardMaterial({ color: 0xc8c2b8, roughness: 0.8 })
+    };
+
+    const lotOutline = [
+      [0, 0],
+      [0, 38.55],
+      [-16.4, 38.55],
+      [-16.9, 32.55],
+      [-13.2, 32.55],
+      [-12.23, 17.95],
+      [-6.1, 17.95],
+      [-5.7, 10.55],
+      [-6.3, 10.55],
+      [-6.3, 0]
+    ];
+
+    function makeShape(points) {
+      const shape = new THREE.Shape();
+      points.forEach(([x, z], index) => {
+        if (index === 0) shape.moveTo(x, z);
+        else shape.lineTo(x, z);
+      });
+      shape.closePath();
+      return shape;
+    }
+
+    function extrudeShape(points, depth, material) {
+      const geometry = new THREE.ExtrudeGeometry(makeShape(points), {
+        depth,
+        bevelEnabled: false
+      });
+      geometry.rotateX(Math.PI / 2);
+      geometry.translate(0, 0, 0);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    function box({ x, y, z, w, h, d, mat, group, name }) {
+      const geo = new THREE.BoxGeometry(w, h, d);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x + w / 2, y + h / 2, z + d / 2);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.name = name || "";
+      group.add(mesh);
+      return mesh;
+    }
+
+    function lineLoop(points, y, color, group) {
+      const positions = [];
+      points.forEach(([x, z]) => positions.push(x, y, z));
+      positions.push(points[0][0], y, points[0][1]);
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      const material = new THREE.LineBasicMaterial({ color });
+      const line = new THREE.Line(geometry, material);
+      group.add(line);
+      return line;
+    }
+
+    function textSprite(message, position, size = 0.7, color = "#3a332c") {
+      const pixelRatio = 2;
+      const c = document.createElement("canvas");
+      const ctx = c.getContext("2d");
+      ctx.font = `${18 * pixelRatio}px Inter, Arial, sans-serif`;
+      const width = Math.ceil(ctx.measureText(message).width + 22 * pixelRatio);
+      c.width = width;
+      c.height = 34 * pixelRatio;
+      ctx.font = `${18 * pixelRatio}px Inter, Arial, sans-serif`;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.82)";
+      ctx.strokeStyle = "rgba(80, 70, 58, 0.2)";
+      ctx.lineWidth = 2 * pixelRatio;
+      roundRect(ctx, 1, 1, c.width - 2, c.height - 2, 8 * pixelRatio);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(message, c.width / 2, c.height / 2 + 1);
+      const texture = new THREE.CanvasTexture(c);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
+      sprite.scale.set((c.width / c.height) * size, size, 1);
+      sprite.position.set(position.x, position.y, position.z);
+      groups.labels.add(sprite);
+      return sprite;
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function addDimension(start, end, y, label) {
+      const material = new THREE.LineBasicMaterial({ color: 0x5b554e });
+      const positions = [start.x, y, start.z, end.x, y, end.z];
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      groups.labels.add(new THREE.Line(geometry, material));
+      textSprite(label, {
+        x: (start.x + end.x) / 2,
+        y: y + 0.55,
+        z: (start.z + end.z) / 2
+      }, 0.55);
+    }
+
+    function addMotorcycle(x, z) {
+      const bike = new THREE.Group();
+      const wheelGeo = new THREE.TorusGeometry(0.23, 0.055, 8, 18);
+      const wheelMat = mats.gate;
+      const frameMat = new THREE.MeshStandardMaterial({ color: 0x1e5f72, roughness: 0.45, metalness: 0.18 });
+      const w1 = new THREE.Mesh(wheelGeo, wheelMat);
+      const w2 = new THREE.Mesh(wheelGeo, wheelMat);
+      w1.rotation.y = Math.PI / 2;
+      w2.rotation.y = Math.PI / 2;
+      w1.position.set(-0.33, 0.24, 0);
+      w2.position.set(0.33, 0.24, 0);
+      const body = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.15, 0.22), frameMat);
+      body.position.set(0, 0.48, 0);
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.09, 0.18), mats.gate);
+      seat.position.set(0.05, 0.62, 0);
+      bike.add(w1, w2, body, seat);
+      bike.position.set(x, 0.03, z);
+      bike.rotation.y = Math.PI * 0.5;
+      groups.access.add(bike);
+    }
+
+    function createScene() {
+      const road = box({ x: -9.5, y: -0.05, z: -5.5, w: 14.0, h: 0.08, d: 5.2, mat: mats.road, group: groups.lot });
+      road.receiveShadow = true;
+      groups.lot.add(extrudeShape(lotOutline, 0.12, mats.lot));
+      lineLoop(lotOutline, 0.16, 0x80632c, groups.lot);
+
+      const partyLeft = box({ x: -17.45, y: 0, z: -0.6, w: 0.28, h: 7.8, d: 39.7, mat: mats.brick, group: groups.lot });
+      const partyRight = box({ x: 0.18, y: 0, z: -0.6, w: 0.28, h: 7.8, d: 39.7, mat: mats.brick, group: groups.lot });
+      partyLeft.material = partyRight.material = mats.brick;
+
+      const floorHeight = 3.05;
+      const floorGap = 0.05;
+      const block = { x: -12.35, z: 19.0, w: 11.45, d: 18.0 };
+      const corridor = { x: -7.18, w: 1.45 };
+      const aptDepth = 8.35;
+      const aptWidth = 4.85;
+      const slabs = [];
+
+      for (let level = 0; level < 3; level++) {
+        const y = level * floorHeight;
+        slabs.push(box({ x: block.x, y, z: block.z, w: block.w, h: 0.18, d: block.d, mat: mats.slab, group: groups.structure }));
+        box({ x: block.x, y: y + 0.18, z: block.z, w: aptWidth, h: floorHeight - 0.35, d: aptDepth, mat: mats.aptA, group: groups.apartments, name: `Apto ${level + 1}01` });
+        box({ x: -5.68, y: y + 0.18, z: block.z, w: aptWidth, h: floorHeight - 0.35, d: aptDepth, mat: mats.aptB, group: groups.apartments, name: `Apto ${level + 1}02` });
+        box({ x: block.x, y: y + 0.18, z: block.z + 9.35, w: aptWidth, h: floorHeight - 0.35, d: aptDepth, mat: mats.aptC, group: groups.apartments, name: `Apto ${level + 1}03` });
+        box({ x: -5.68, y: y + 0.18, z: block.z + 9.35, w: aptWidth, h: floorHeight - 0.35, d: aptDepth, mat: mats.aptD, group: groups.apartments, name: `Apto ${level + 1}04` });
+
+        box({ x: corridor.x, y: y + 0.2, z: block.z, w: corridor.w, h: floorHeight - 0.3, d: block.d, mat: mats.core, group: groups.core, name: "Corredor comun" });
+        box({ x: -8.1, y: y + 0.22, z: 17.15, w: 4.0, h: floorHeight - 0.33, d: 3.4, mat: mats.core, group: groups.core, name: "Escalera" });
+        box({ x: -6.92, y: y + 0.28, z: 22.55, w: 0.9, h: floorHeight - 0.4, d: 3.4, mat: mats.patio, group: groups.core, name: "Patio lineal" });
+        box({ x: -6.92, y: y + 0.28, z: 31.1, w: 0.9, h: floorHeight - 0.4, d: 3.3, mat: mats.patio, group: groups.core, name: "Patio lineal" });
+
+        const labelY = y + floorHeight * 0.52;
+        textSprite(`Piso ${level + 1}: 4 aptos x 45 m2`, { x: -14.7, y: labelY, z: 27.7 }, 0.72);
+      }
+
+      box({ x: block.x - 0.2, y: 9.12, z: block.z - 0.15, w: block.w + 0.4, h: 0.25, d: block.d + 0.3, mat: mats.roof, group: groups.structure });
+      box({ x: block.x + 0.45, y: 9.37, z: block.z + 0.5, w: block.w - 0.9, h: 0.85, d: block.d - 1.0, mat: mats.patio, group: groups.core });
+      box({ x: -8.05, y: 9.42, z: 17.2, w: 3.85, h: 1.6, d: 3.2, mat: mats.core, group: groups.core });
+
+      box({ x: -6.25, y: 0.05, z: 0.0, w: 6.0, h: 0.08, d: 17.6, mat: mats.slab, group: groups.access });
+      box({ x: -6.18, y: 0.16, z: 0.1, w: 0.22, h: 2.6, d: 17.2, mat: mats.gate, group: groups.access });
+      box({ x: -0.55, y: 0.16, z: 0.1, w: 0.22, h: 2.6, d: 17.2, mat: mats.gate, group: groups.access });
+      box({ x: -6.05, y: 0.16, z: -0.05, w: 5.6, h: 2.65, d: 0.28, mat: mats.gate, group: groups.access });
+      box({ x: -4.25, y: 0.16, z: 5.1, w: 2.6, h: 0.16, d: 12.3, mat: mats.patio, group: groups.access });
+
+      for (let i = 0; i < 9; i++) {
+        const x = -5.55 + (i % 3) * 1.55;
+        const z = 4.1 + Math.floor(i / 3) * 3.2;
+        addMotorcycle(x, z);
+      }
+
+      const columnXs = [-12.35, -7.2, -0.9];
+      const columnZs = [19.0, 27.9, 37.0];
+      columnXs.forEach(x => {
+        columnZs.forEach(z => {
+          box({ x: x - 0.12, y: 0.1, z: z - 0.12, w: 0.24, h: 9.35, d: 0.24, mat: mats.column, group: groups.structure });
+        });
+      });
+      [-6.25, -0.28].forEach(x => {
+        [0.3, 9.0, 17.3].forEach(z => {
+          box({ x: x - 0.1, y: 0.1, z: z - 0.1, w: 0.2, h: 3.1, d: 0.2, mat: mats.column, group: groups.structure });
+        });
+      });
+
+      const windowMat = mats.glass;
+      for (let level = 0; level < 3; level++) {
+        const y = level * floorHeight + 1.2;
+        box({ x: block.x - 0.035, y, z: 21.1, w: 0.07, h: 1.05, d: 2.2, mat: windowMat, group: groups.apartments });
+        box({ x: block.x - 0.035, y, z: 31.0, w: 0.07, h: 1.05, d: 2.2, mat: windowMat, group: groups.apartments });
+        box({ x: -0.97, y, z: 21.1, w: 0.07, h: 1.05, d: 2.2, mat: windowMat, group: groups.apartments });
+        box({ x: -0.97, y, z: 31.0, w: 0.07, h: 1.05, d: 2.2, mat: windowMat, group: groups.apartments });
+      }
+
+      textSprite("Acceso + motos", { x: -3.15, y: 1.15, z: 8.7 }, 0.72);
+      textSprite("Nucleo de escaleras", { x: -6.1, y: 3.4, z: 17.1 }, 0.68);
+      textSprite("Bloque compacto posterior", { x: -6.4, y: 10.8, z: 38.4 }, 0.78);
+      textSprite("Terraza tecnica", { x: -6.2, y: 11.5, z: 27.6 }, 0.68);
+      addDimension({ x: -6.3, z: 0 }, { x: 0, z: 0 }, 0.25, "frente aprox. 6,30 m");
+      addDimension({ x: -16.4, z: 38.55 }, { x: 0, z: 38.55 }, 0.25, "fondo ancho aprox. 16,40 m");
+      addDimension({ x: 1.15, z: 0 }, { x: 1.15, z: 38.55 }, 0.25, "longitud total aprox. 38,55 m");
+
+      const grid = new THREE.GridHelper(50, 50, 0x9c9388, 0xd8d0c5);
+      grid.position.set(-7.5, -0.02, 19);
+      groups.lot.add(grid);
+    }
+
+    function setCamera(position, target) {
+      camera.position.set(position.x, position.y, position.z);
+      controls.target.set(target.x, target.y, target.z);
+      controls.update();
+    }
+
+    createScene();
+
+    const ambient = new THREE.HemisphereLight(0xffffff, 0x756d60, 2.4);
+    scene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xffffff, 3.2);
+    sun.position.set(-18, 32, 18);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = -40;
+    sun.shadow.camera.right = 28;
+    sun.shadow.camera.top = 52;
+    sun.shadow.camera.bottom = -12;
+    scene.add(sun);
+
+    document.querySelector("#toggleLot").addEventListener("change", event => { groups.lot.visible = event.target.checked; });
+    document.querySelector("#toggleApartments").addEventListener("change", event => { groups.apartments.visible = event.target.checked; });
+    document.querySelector("#toggleCore").addEventListener("change", event => { groups.core.visible = event.target.checked; });
+    document.querySelector("#toggleStructure").addEventListener("change", event => { groups.structure.visible = event.target.checked; });
+    document.querySelector("#toggleAccess").addEventListener("change", event => { groups.access.visible = event.target.checked; });
+
+    document.querySelector("#viewIso").addEventListener("click", () => setCamera(
+      { x: 27, y: 23, z: 45 },
+      { x: -7.5, y: 4.4, z: 21 }
+    ));
+    document.querySelector("#viewTop").addEventListener("click", () => setCamera(
+      { x: -7.8, y: 63, z: 19 },
+      { x: -7.8, y: 0, z: 19 }
+    ));
+    document.querySelector("#viewStreet").addEventListener("click", () => setCamera(
+      { x: -3.1, y: 5.2, z: -12.8 },
+      { x: -4.5, y: 3.1, z: 16 }
+    ));
+    document.querySelector("#viewRear").addEventListener("click", () => setCamera(
+      { x: -22, y: 15, z: 43 },
+      { x: -6.2, y: 5.4, z: 28 }
+    ));
+
+    function resize() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    }
+
+    function animate() {
+      resize();
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
